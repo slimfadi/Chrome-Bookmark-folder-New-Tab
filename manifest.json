@@ -1,0 +1,13 @@
+{
+  "name": "Swat New Tab",
+  "version": "0.2",
+  "incognito": "split",
+  "permissions": [
+    "bookmarks"
+  ],
+  "chrome_url_overrides": {
+    "newtab": "new_tab.html"
+  },
+  "manifest_version": 2,
+  "content_security_policy": "script-src 'self' https://ajax.googleapis.com; object-src 'self'"
+}
