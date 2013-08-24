@@ -22,10 +22,17 @@ document.addEventListener('DOMContentLoaded', function () {
 		function(bookmarkTreeNodes) {
 			//limiting to the bookmarks bar
 			var bookmarks_bar=bookmarkTreeNodes[0].children[0].children;
-
+			var folder_name;
 			for (var i = 0; i < bookmarks_bar.length; i++) {
-				//limiting the folder name to "swat"
-				if (bookmarks_bar[i].title && bookmarks_bar[i].title== "good") {
+				//read the folder name from the options and setting it to "good" if it's not set
+
+				if (typeof localStorage["folder_name"] !== "undefined") {
+					folder_name = localStorage["folder_name"];
+				} else {
+					folder_name = "good";
+				}
+				console.log(folder_name);
+				if (bookmarks_bar[i].title && bookmarks_bar[i].title == folder_name) {
 					var id=bookmarks_bar[i].id;
 					$('body').append(dumpTreeNodes(bookmarks_bar[i].children));
 					$('#manage').click(function() {
@@ -38,5 +45,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	$("#random").click(function(event) {
 		var rand_index = Math.ceil(Math.random()*Number($("#bookmarks a").length));
 		chrome.tabs.create({url: $("a").eq(rand_index).attr('href')});
+	});
+	$("#options").click(function(event) {
+		chrome.tabs.create({url: chrome.extension.getURL("options.html")});
 	});
 });
