@@ -1,9 +1,8 @@
-swat_chrome_new_tab
-===================
+##Chrome-Bookmark-folder-New-Tab
 
 a new tab extension for chrome to read the bookmarks inside of a folder
 
------------
+===================
 
 to change the bookmarks folder name change "good" in this line
 
