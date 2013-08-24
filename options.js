@@ -12,3 +12,6 @@ function save_options() {
 	}, 750);
 }
 document.querySelector('#save').addEventListener('click', save_options);
+document.addEventListener('DOMContentLoaded', function () {
+	document.querySelector('#folder_name').value=localStorage["folder_name"];
+})
