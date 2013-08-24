@@ -1,6 +1,6 @@
 function dumpTreeNodes(bookmarkNodes) {
 
-	var list = $('<div>');
+	var list = $('<div id="bookmarks">');
 	for (var i = 0; i < bookmarkNodes.length; i++) {
 		list.append(dumpNode(bookmarkNodes[i]));
 	}
@@ -9,15 +9,10 @@ function dumpTreeNodes(bookmarkNodes) {
 function dumpNode(bookmarkNode) {
 
 	if (bookmarkNode.title) {
-		var anchor = $('<a>');
-		anchor.attr('href', bookmarkNode.url);
-		anchor.text(bookmarkNode.title);
-	}
-	var li = $(bookmarkNode.title ? '<li>' : '<div>').append(anchor);
-
-	if (bookmarkNode.children && bookmarkNode.children.length > 0) {
-		if(!bookmarkNode.title || bookmarkNode.title === "good2" || bookmarkNode.title === "Bookmarks Bar")
-		li.append(dumpTreeNodes(bookmarkNode.children));
+		var anchor = $('<a>').attr('href', bookmarkNode.url).text(bookmarkNode.title),
+			rand_color_index = Math.ceil(Math.random()*10),
+			colors=["#FFF8CB","#EBD3B1","#FFB5A5","#D7F7EC","#FFF2AA","#B8C3F1","#D4DAF2","#BDD4DE","#EFEFEF","#7794BC"];
+		anchor.css({"background-color":colors[rand_color_index]});
 	}
 	return anchor;
 }
@@ -27,18 +22,21 @@ document.addEventListener('DOMContentLoaded', function () {
 		function(bookmarkTreeNodes) {
 			//limiting to the bookmarks bar
 			var bookmarks_bar=bookmarkTreeNodes[0].children[0].children;
-			
+
 			for (var i = 0; i < bookmarks_bar.length; i++) {
 				//limiting the folder name to "swat"
-				if (bookmarks_bar[i].title && bookmarks_bar[i].title== "swat") {
+				if (bookmarks_bar[i].title && bookmarks_bar[i].title== "good") {
 					var id=bookmarks_bar[i].id;
-					$('#bookmarks').append(dumpTreeNodes(bookmarks_bar[i].children));
-					$('#manage a').click(function() {
+					$('body').append(dumpTreeNodes(bookmarks_bar[i].children));
+					$('#manage').click(function() {
 						chrome.tabs.create({url: "chrome://bookmarks#"+id});
 					});
 				}
-			
 			}
 		}
 	);
+	$("#random").click(function(event) {
+		var rand_index = Math.ceil(Math.random()*Number($("#bookmarks a").length));
+		chrome.tabs.create({url: $("a").eq(rand_index).attr('href')});
+	});
 });
