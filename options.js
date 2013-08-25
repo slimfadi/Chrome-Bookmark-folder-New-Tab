@@ -13,5 +13,8 @@ function save_options() {
 }
 document.querySelector('#save').addEventListener('click', save_options);
 document.addEventListener('DOMContentLoaded', function () {
+	if (typeof localStorage["folder_name"] === "undefined") {
+		localStorage["folder_name"]="good";
+	}
 	document.querySelector('#folder_name').value=localStorage["folder_name"];
 })
