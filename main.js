@@ -9,12 +9,59 @@ function dumpTreeNodes(bookmarkNodes) {
 function dumpNode(bookmarkNode) {
 
 	if (bookmarkNode.title) {
-		var anchor = $('<a>').attr('href', bookmarkNode.url).text(bookmarkNode.title),
-			rand_color_index = Math.ceil(Math.random()*10),
-			colors=["#FFF8CB","#EBD3B1","#FFB5A5","#D7F7EC","#FFF2AA","#B8C3F1","#D4DAF2","#BDD4DE","#EFEFEF","#7794BC"];
-		anchor.css({"background-color":colors[rand_color_index]});
+		var anchor = $('<a>').attr('href', bookmarkNode.url).text(bookmarkNode.title);
+		anchor.css({"background-color":get_random_color()});
 	}
 	return anchor;
+}
+function get_random_color(){
+	var h=Math.random(),
+	s=0.5,
+	v=0.95,
+	golden_ratio=0.618033988749895,
+	h_i,f,p,q,t,r,g,b;
+
+	h+=golden_ratio;
+	h%=1;
+
+	h_i = Math.floor(h*6);
+	f = h*6 - h_i;
+	p = v * (1-s);
+	q = v * (1 - f*s);
+	t = v * (1 - (1 - f) * s);
+	switch (h_i) {
+		case 0 :
+			r=v;
+			g=t;
+			b=p;
+		break;
+		case 1:
+			r=q;
+			g=v;
+			b=p;
+		break;
+		case 2:
+			r=p;
+			g=v;
+			b=t;
+		break;
+		case 3:
+			r=p;
+			g=q;
+			b=v;
+		break;
+		case 4:
+			r=t;
+			g=p;
+			b=v;
+		break;
+		case 5:
+			r=v;
+			g=p;
+			b=q;
+		break;
+	}
+	return 'rgb('+parseInt(r*256)+','+parseInt(g*256)+','+parseInt(b*256)+')';
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -31,7 +78,6 @@ document.addEventListener('DOMContentLoaded', function () {
 				} else {
 					folder_name = "good";
 				}
-				console.log(folder_name);
 				if (bookmarks_bar[i].title && bookmarks_bar[i].title == folder_name) {
 					var id=bookmarks_bar[i].id;
 					$('body').append(dumpTreeNodes(bookmarks_bar[i].children));
