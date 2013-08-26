@@ -4,8 +4,4 @@ a new tab extension for chrome to read the bookmarks inside of a folder
 
 ===================
 
-to change the bookmarks folder name change "good" in this line
-
-if (bookmarks_bar[i].title && bookmarks_bar[i].title== "good") {
-
-to whatever folder you want, provided that it's in the bookmarks bar
+by default, it'll read the folder "good" from the bookmarks bar, you can change it fromt he options page
