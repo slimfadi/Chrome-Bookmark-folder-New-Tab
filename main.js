@@ -1,3 +1,31 @@
+function loadBookmarks() {
+	$("#bookmarks").remove();
+
+	for (var i = 0; i < bookmarks_bar.length; i++) {
+		//read the folder name from the options and setting it to "good" if it's not set
+
+		if (bookmarks_bar[i].title && bookmarks_bar[i].title == folder_name) {
+			var id=bookmarks_bar[i].id;
+			$('body').append(dumpTreeNodes(bookmarks_bar[i].children));
+		}
+	}
+}
+
+function loadFolders() {
+	for (var i = 0; i < bookmarks_bar.length; i++) {
+		if (bookmarks_bar[i].title && bookmarks_bar[i].children) {
+
+			$("#folder").append($("<option />").val(bookmarks_bar[i].title).text(bookmarks_bar[i].title));
+		}
+	}
+
+	if ( folder_name === "" ) {
+		folder_name=$("#folder").children('option').eq(0).val();
+	}
+
+	$("#folder").val(folder_name).change();
+}
+
 function dumpTreeNodes(bookmarkNodes) {
 
 	var list = $('<div id="bookmarks">');
@@ -6,15 +34,17 @@ function dumpTreeNodes(bookmarkNodes) {
 	}
 	return list;
 }
+
 function dumpNode(bookmarkNode) {
 
 	if (bookmarkNode.title) {
 		var anchor = $('<a>').attr('href', bookmarkNode.url).text(bookmarkNode.title);
-		anchor.css({"background-color":get_random_color()});
+		anchor.css({"background-color":generateColor()});
 	}
 	return anchor;
 }
-function get_random_color(){
+
+function generateColor(){
 	var h=Math.random(),
 	s=0.5,
 	v=0.95,
@@ -65,34 +95,33 @@ function get_random_color(){
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-	var bookmarkTreeNodes = chrome.bookmarks.getTree(
+	folder_name = "";
+	bookmarks_bar = "";
+	if (typeof localStorage["folder_name"] !== "undefined") {
+		folder_name = localStorage["folder_name"];
+	}
+
+	chrome.bookmarks.getTree(
 		function(bookmarkTreeNodes) {
 			//limiting to the bookmarks bar
-			var bookmarks_bar=bookmarkTreeNodes[0].children[0].children;
-			var folder_name;
-			for (var i = 0; i < bookmarks_bar.length; i++) {
-				//read the folder name from the options and setting it to "good" if it's not set
-
-				if (typeof localStorage["folder_name"] !== "undefined") {
-					folder_name = localStorage["folder_name"];
-				} else {
-					folder_name = "good";
-				}
-				if (bookmarks_bar[i].title && bookmarks_bar[i].title == folder_name) {
-					var id=bookmarks_bar[i].id;
-					$('body').append(dumpTreeNodes(bookmarks_bar[i].children));
-					$('#manage').click(function() {
-						chrome.tabs.create({url: "chrome://bookmarks#"+id});
-					});
-				}
+			if (bookmarkTreeNodes[0].children && bookmarkTreeNodes[0].children[0].children) {
+				bookmarks_bar=bookmarkTreeNodes[0].children[0].children;
 			}
+			loadBookmarks(folder_name);
+			loadFolders();
 		}
-	);
+	)
+
 	$("#random").click(function(event) {
 		var rand_index = Math.ceil(Math.random()*Number($("#bookmarks a").length));
 		chrome.tabs.create({url: $("a").eq(rand_index).attr('href')});
 	});
-	$("#options").click(function(event) {
-		chrome.tabs.create({url: chrome.extension.getURL("options.html")});
+	$("#folder").change(function(){
+		folder_name=$(this).val();
+		localStorage["folder_name"]=folder_name;
+		loadBookmarks(folder_name);
+	});
+	$('#manage').click(function() {
+		chrome.tabs.create({url: "chrome://bookmarks#"+id});
 	});
 });
