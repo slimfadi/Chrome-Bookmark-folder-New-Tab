@@ -5,7 +5,7 @@ function loadBookmarks() {
 		//read the folder name from the options and setting it to "good" if it's not set
 
 		if (bookmarks_bar[i].title && bookmarks_bar[i].title == folder_name) {
-			var id=bookmarks_bar[i].id;
+			folder_id=bookmarks_bar[i].id;
 			$('body').append(dumpTreeNodes(bookmarks_bar[i].children));
 		}
 	}
@@ -36,12 +36,15 @@ function dumpTreeNodes(bookmarkNodes) {
 }
 
 function dumpNode(bookmarkNode) {
-
-	if (bookmarkNode.title) {
+	if (bookmarkNode.url) {
 		var anchor = $('<a>').attr('href', bookmarkNode.url).text(bookmarkNode.title);
 		anchor.css({"background-color":generateColor()});
 	}
 	return anchor;
+}
+function goToRandomLink(){
+	var rand_index = Math.ceil(Math.random()*Number($("#bookmarks a").length));
+	chrome.tabs.create({url: $("a").eq(rand_index).attr('href')});
 }
 
 function generateColor(){
@@ -97,6 +100,7 @@ function generateColor(){
 document.addEventListener('DOMContentLoaded', function () {
 	folder_name = "";
 	bookmarks_bar = "";
+	folder_id=0;
 	if (typeof localStorage["folder_name"] !== "undefined") {
 		folder_name = localStorage["folder_name"];
 	}
@@ -113,8 +117,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	)
 
 	$("#random").click(function(event) {
-		var rand_index = Math.ceil(Math.random()*Number($("#bookmarks a").length));
-		chrome.tabs.create({url: $("a").eq(rand_index).attr('href')});
+		goToRandomLink();
 	});
 	$("#folder").change(function(){
 		folder_name=$(this).val();
@@ -122,6 +125,27 @@ document.addEventListener('DOMContentLoaded', function () {
 		loadBookmarks(folder_name);
 	});
 	$('#manage').click(function() {
-		chrome.tabs.create({url: "chrome://bookmarks#"+id});
+		chrome.tabs.create({url: "chrome://bookmarks#"+folder_id});
+	});
+	$("body").keyup(function(e){
+		switch (e.which) {
+			case 78:
+				var next_folder
+				/*n*/
+				if(typeof $("#folder option:selected").next().val() !== "undefined") {
+					next_folder=$("#folder option:selected").next().val();
+				} else {
+					next_folder=$("#folder option").eq(0).val();
+				}
+				$("#folder").val(next_folder);
+				$("#folder").change();
+			break;
+			case 86:
+				goToRandomLink();
+			break;
+			case 77:
+				$("#manage").click();
+			break;
+		}
 	});
 });
