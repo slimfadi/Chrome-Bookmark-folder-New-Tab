@@ -37,7 +37,10 @@ function dumpTreeNodes(bookmarkNodes) {
 
 function dumpNode(bookmarkNode) {
 	if (bookmarkNode.url) {
-		var anchor = $('<a>').attr('href', bookmarkNode.url).text(bookmarkNode.title);
+		var anchor = $('<div>').addClass('bookmark');
+		var link = $('<a>').attr('href', bookmarkNode.url).text(bookmarkNode.title).css({width:'100%',height:'100%'}).addClass("link");
+		anchor.append(link);
+		anchor.append("<a class='delete' data-id='"+bookmarkNode.id+"' style='width:20px;height:20px;background-color:black;'></div>")
 		anchor.css({"background-color":generateColor()});
 	}
 	return anchor;
@@ -114,7 +117,16 @@ document.addEventListener('DOMContentLoaded', function () {
 			loadBookmarks(folder_name);
 			loadFolders();
 		}
-	)
+	);
+
+	$(".delete").live("click",function(){
+		that=$(this);
+		if (confirm("dude?")) {
+			chrome.bookmarks.remove(that.attr("data-id"),function(){
+				that.parents(".bookmark").remove();
+			})
+		}
+	});
 
 	$("#random").click(function(event) {
 		goToRandomLink();

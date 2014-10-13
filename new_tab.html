@@ -7,18 +7,31 @@
 				font-family:sans-serif;
 				margin:0 1%;
 			}
-			#bookmarks a {
+			#bookmarks .bookmark {
 				display: inline-block;
 				width: 22.8%;
 				margin: 0.1%;
 				height: 12%;
+				padding: 1%;
 				float: left;
 				color: black;
 				text-decoration: none;
 				text-align: center;
-				padding: 1%;
 				overflow:hidden;
+				position: relative;
 			}
+			.bookmark .link {
+				display: block;
+				text-decoration: none;
+				color:#000;
+			}
+
+			.delete {
+				position: absolute;
+				top:0;
+				right: 0;
+			}
+
 			#bookmarks {
 				margin-top: 30px;
 			}
