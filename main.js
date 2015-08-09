@@ -29,7 +29,7 @@ function loadFolders() {
 function dumpTreeNodes(bookmarkNodes) {
 
 	var list = $('<div id="bookmarks">');
-	for (var i = 0; i < bookmarkNodes.length; i++) {
+	for (var i = bookmarkNodes.length-1; i >-1 ; i--) {
 		list.append(dumpNode(bookmarkNodes[i]));
 	}
 	return list;
@@ -47,7 +47,7 @@ function dumpNode(bookmarkNode) {
 }
 function goToRandomLink(){
 	var rand_index = Math.ceil(Math.random()*Number($("#bookmarks a").length));
-	chrome.tabs.create({url: $("a").eq(rand_index).attr('href')});
+	chrome.tabs.create({url: $(".link").eq(rand_index).attr('href')});
 }
 
 function generateColor(){
