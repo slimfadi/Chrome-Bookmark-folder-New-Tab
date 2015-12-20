@@ -9,27 +9,27 @@
 			}
 			#bookmarks .bookmark {
 				display: inline-block;
-				width: 22.8%;
-				margin: 0.1%;
-				height: 12%;
+				width: 98%;
 				padding: 1%;
 				float: left;
 				color: black;
 				text-decoration: none;
-				text-align: center;
 				overflow:hidden;
 				position: relative;
+				/*outline: solid 1px gray;*/
+				margin-top:20px;
 			}
 			.bookmark .link {
-				display: block;
 				text-decoration: none;
-				color:#000;
+				color:#1a0dab;
+				font-size:20px;
+				margin-left: 18px;
 			}
 
 			.delete {
 				position: absolute;
-				top:0;
-				right: 0;
+				top:14px;
+				left: 0;
 			}
 
 			#bookmarks {
@@ -48,12 +48,30 @@
 			#folder {
 				left:140px;
 			}
+			.folders {
+				position: fixed;
+				right: 10px;
+				z-index: 100;
+			}
+			.folder {
+				border: solid 1px #cecece;
+				padding: 5px 10px;
+				text-align: center;
+				margin: 5px;
+				font-size: 20px;
+				cursor: pointer;
+			}
+			.folder.active {
+				background: #333333;
+				color: #cecece;
+			}
 		</style>
 
 	</head>
 	<body>
 		<a id="manage" href="javascript:;">manage</a>
 		<a id="random" href="javascript:;">random</a>
-		<select id="folder"></select>
+		<div class="folders">
+		</div>
 	</body>
 </html>
