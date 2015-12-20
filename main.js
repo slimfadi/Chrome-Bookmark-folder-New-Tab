@@ -4,8 +4,7 @@ function loadBookmarks() {
 	for (var i = 0; i < bookmarks_bar.length; i++) {
 		//read the folder name from the options and setting it to "good" if it's not set
 
-		if (bookmarks_bar[i].title && bookmarks_bar[i].title == folder_name) {
-			folder_id=bookmarks_bar[i].id;
+		if (bookmarks_bar[i].id && bookmarks_bar[i].id == folder_id) {
 			$('body').append(dumpTreeNodes(bookmarks_bar[i].children));
 		}
 	}
@@ -15,15 +14,15 @@ function loadFolders() {
 	for (var i = 0; i < bookmarks_bar.length; i++) {
 		if (bookmarks_bar[i].title && bookmarks_bar[i].children) {
 
-			$("#folder").append($("<option />").val(bookmarks_bar[i].title).text(bookmarks_bar[i].title));
+			$(".folders").append($("<div/>").addClass("folder").attr("id","folder-"+bookmarks_bar[i].id).text(bookmarks_bar[i].title));
 		}
 	}
 
-	if ( folder_name === "" ) {
-		folder_name=$("#folder").children('option').eq(0).val();
+	if ( folder_id === 0 ) {
+		folder_id = $(".folders").children('.folder').eq(0).attr("id").replace("folder-","");
 	}
+	loadActiveFolderBookmarks(folder_id);
 
-	$("#folder").val(folder_name).change();
 }
 
 function dumpTreeNodes(bookmarkNodes) {
@@ -38,7 +37,7 @@ function dumpTreeNodes(bookmarkNodes) {
 function dumpNode(bookmarkNode) {
 	if (bookmarkNode.url) {
 		var anchor = $('<div>').addClass('bookmark');
-		var link = $('<a>').attr('href', bookmarkNode.url).text(bookmarkNode.title).css({width:'100%',height:'100%'}).addClass("link");
+		var link = $('<a>').attr('href', bookmarkNode.url).text(bookmarkNode.title).addClass("link");
 		anchor.append(link);
 		anchor.append("<a class='delete' data-id='"+bookmarkNode.id+"' style='width:20px;height:20px;background-color:black;'></div>")
 		anchor.css({"background-color":generateColor()});
@@ -97,15 +96,22 @@ function generateColor(){
 			b=q;
 		break;
 	}
+	return '#fff';
 	return 'rgb('+parseInt(r*256)+','+parseInt(g*256)+','+parseInt(b*256)+')';
 }
 
+function loadActiveFolderBookmarks(folder_id) {
+	localStorage["folder_id"]=folder_id;
+	loadBookmarks(folder_id);
+	$(".folder.active").removeClass("active");
+	$("#folder-"+folder_id).addClass("active");
+}
+
 document.addEventListener('DOMContentLoaded', function () {
-	folder_name = "";
 	bookmarks_bar = "";
 	folder_id=0;
-	if (typeof localStorage["folder_name"] !== "undefined") {
-		folder_name = localStorage["folder_name"];
+	if (typeof localStorage["folder_id"] !== "undefined") {
+		folder_id = localStorage["folder_id"];
 	}
 
 	chrome.bookmarks.getTree(
@@ -114,8 +120,8 @@ document.addEventListener('DOMContentLoaded', function () {
 			if (bookmarkTreeNodes[0].children && bookmarkTreeNodes[0].children[0].children) {
 				bookmarks_bar=bookmarkTreeNodes[0].children[0].children;
 			}
-			loadBookmarks(folder_name);
 			loadFolders();
+			loadBookmarks(folder_id);
 		}
 	);
 
@@ -131,32 +137,41 @@ document.addEventListener('DOMContentLoaded', function () {
 	$("#random").click(function(event) {
 		goToRandomLink();
 	});
-	$("#folder").change(function(){
-		folder_name=$(this).val();
-		localStorage["folder_name"]=folder_name;
-		loadBookmarks(folder_name);
+	$(".folder").live("click",function(){
+		folder_id=$(this).attr("id").replace("folder-","");
+		loadActiveFolderBookmarks(folder_id);
 	});
+
 	$('#manage').click(function() {
 		chrome.tabs.create({url: "chrome://bookmarks#"+folder_id});
 	});
-	$("body").keyup(function(e){
+	$("body").keydown(function(e){
 		switch (e.which) {
-			case 78:
-				var next_folder
-				/*n*/
-				if(typeof $("#folder option:selected").next().val() !== "undefined") {
-					next_folder=$("#folder option:selected").next().val();
-				} else {
-					next_folder=$("#folder option").eq(0).val();
-				}
-				$("#folder").val(next_folder);
-				$("#folder").change();
-			break;
 			case 86:
+				//v
 				goToRandomLink();
 			break;
 			case 77:
+				//m
 				$("#manage").click();
+			break;
+			case 40:
+				//down
+				e.preventDefault();
+				if($(".folder.active").next().length) {
+					$(".folder.active").next().click();
+				} else {
+					$(".folder:first").click();
+				}
+			break;
+			case 38:
+				//up
+				e.preventDefault();
+				if($(".folder.active").prev().length) {
+					$(".folder.active").prev().click();
+				} else {
+					$(".folder:last").click();
+				}
 			break;
 		}
 	});
