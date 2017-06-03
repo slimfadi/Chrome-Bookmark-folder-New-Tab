@@ -8,9 +8,11 @@ function loadBookmarks() {
 			$('body').append(dumpTreeNodes(bookmarks_bar[i].children));
 		}
 	}
+	makeDraggable();
 }
 
 function loadFolders() {
+	$(".folder").remove();
 	for (var i = 0; i < bookmarks_bar.length; i++) {
 		if (bookmarks_bar[i].title && bookmarks_bar[i].children) {
 
@@ -40,12 +42,12 @@ function dumpNode(bookmarkNode) {
 		var link = $('<a>').attr('href', bookmarkNode.url).text(bookmarkNode.title).addClass("link");
 		anchor.append(link);
 		anchor.append("<a class='delete' data-id='"+bookmarkNode.id+"' style='width:20px;height:20px;background-color:black;'></div>")
-		anchor.css({"background-color":generateColor()});
+		// anchor.css({"background-color":generateColor()});
 	}
 	return anchor;
 }
 function goToRandomLink(){
-	var rand_index = Math.ceil(Math.random()*Number($("#bookmarks a").length));
+	var rand_index = Math.floor(Math.random()*Number($("#bookmarks a.link").length));
 	chrome.tabs.create({url: $(".link").eq(rand_index).attr('href')});
 }
 
@@ -108,22 +110,7 @@ function loadActiveFolderBookmarks(folder_id) {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-	bookmarks_bar = "";
-	folder_id=0;
-	if (typeof localStorage["folder_id"] !== "undefined") {
-		folder_id = localStorage["folder_id"];
-	}
-
-	chrome.bookmarks.getTree(
-		function(bookmarkTreeNodes) {
-			//limiting to the bookmarks bar
-			if (bookmarkTreeNodes[0].children && bookmarkTreeNodes[0].children[0].children) {
-				bookmarks_bar=bookmarkTreeNodes[0].children[0].children;
-			}
-			loadFolders();
-			loadBookmarks(folder_id);
-		}
-	);
+	init();
 
 	$(".delete").live("click",function(){
 		that=$(this);
@@ -176,3 +163,49 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 	});
 });
+function init() {
+	bookmarks_bar = "";
+	folder_id=0;
+	if (typeof localStorage["folder_id"] !== "undefined") {
+		folder_id = localStorage["folder_id"];
+	}
+
+	chrome.bookmarks.getTree(
+		function(bookmarkTreeNodes) {
+			//limiting to the bookmarks bar
+			if (bookmarkTreeNodes[0].children && bookmarkTreeNodes[0].children[0].children) {
+				bookmarks_bar=bookmarkTreeNodes[0].children[0].children;
+			}
+			loadFolders();
+			loadBookmarks(folder_id);
+		}
+	);
+}
+function makeDraggable() {
+	$(".bookmark").draggable({
+		cursor: 'move',
+		// containment: "window",
+		revert: "invalid",
+		start: handleStart,
+		stop: handleStop
+	});
+	$(".folder").droppable({
+		drop: handleDropEvent,
+		hoverClass: 'hovered',
+		accept: '.bookmark'
+	});
+}
+function handleStart(event, ui) {
+	$(this).addClass('being_dragged');
+}
+function handleStop(event, ui) {
+	$(this).removeClass('being_dragged');
+}
+function handleDropEvent(event, ui) {
+	var draggable = ui.draggable;
+	console.log();
+	chrome.bookmarks.move(draggable.find(".delete").attr("data-id"),{parentId:$(this).attr("id").replace("folder-","")});
+	draggable.remove();
+	init();
+	// console.log(draggable)
+}
